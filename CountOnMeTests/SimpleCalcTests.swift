@@ -7,28 +7,77 @@
 //
 
 import XCTest
-@testable import SimpleCalc
+
+@testable import CountOnMe
 
 class SimpleCalcTests: XCTestCase {
 
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    var simpleCalc: SimpleCalc!
+        
+        override func setUp() {
+            super.setUp()
+            simpleCalc = SimpleCalc()
         }
-    }
+
+        override func tearDown() {
+            simpleCalc = nil
+            super.tearDown()
+        }
+
+        // Test the calculateResult function
+        func testCalculateResult() {
+    
+            simpleCalc.elements = ["2", "+", "3"]
+            XCTAssertEqual(simpleCalc.calculateResult(), "5")
+
+            simpleCalc.elements = ["5", "-", "2"]
+            XCTAssertEqual(simpleCalc.calculateResult(), "3")
+
+            simpleCalc.elements = ["4", "*", "3"]
+            XCTAssertEqual(simpleCalc.calculateResult(), "12")
+
+            simpleCalc.elements = ["6", "/", "2"]
+            XCTAssertEqual(simpleCalc.calculateResult(), "3")
+        }
+
+
+        func testExpressionIsCorrect() {
+            
+            simpleCalc.elements = ["2", "+", "3"]
+            XCTAssertTrue(simpleCalc.expressionIsCorrect)
+
+            simpleCalc.elements = ["2", "+"]
+            XCTAssertFalse(simpleCalc.expressionIsCorrect)
+        }
+
+        
+        func testExpressionHaveEnoughElement() {
+           
+            simpleCalc.elements = ["2", "+", "3"]
+            XCTAssertTrue(simpleCalc.expressionHaveEnoughElement)
+
+            simpleCalc.elements = ["2", "+"]
+            XCTAssertFalse(simpleCalc.expressionHaveEnoughElement)
+        }
+
+  
+        func testCanAddOperator() {
+         
+            simpleCalc.elements = ["2", "+"]
+            XCTAssertTrue(simpleCalc.canAddOperator)
+
+            simpleCalc.elements = ["2", "+"]
+            XCTAssertFalse(simpleCalc.canAddOperator)
+        }
+
+     
+        func testExpressionHaveResult() {
+    
+            simpleCalc.elements = ["2", "+", "3", "=", "5"]
+            XCTAssertTrue(simpleCalc.expressionHaveResult)
+
+            simpleCalc.elements = ["2", "+"]
+            XCTAssertFalse(simpleCalc.expressionHaveResult)
+        }
 
 }
