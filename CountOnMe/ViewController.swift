@@ -12,13 +12,13 @@ class ViewController: UIViewController {
     @IBOutlet weak var textView: UITextView!
     @IBOutlet var numberButtons: [UIButton]!
     var simpleCalc = SimpleCalc()
-    var expression: String!
+    //var expression: String!
     
     // View Life cycles
     override func viewDidLoad() {
         super.viewDidLoad()
-        expression = simpleCalc.elements.joined(separator: "")
-        textView.text = expression
+        
+        textView.text = simpleCalc.elements.joined(separator: "")
         
     }
     
@@ -36,9 +36,10 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedAdditionButton(_ sender: UIButton) {
-        initCalcultor()
+        
         if simpleCalc.canAddOperator {
-            textView.text.append(" + ")
+            simpleCalc.elements.append(" + ")
+            textView.text = simpleCalc.elements.joined(separator: "")
            } else {
                let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
                alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
@@ -47,10 +48,9 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedSubstractionButton(_ sender: UIButton) {
-        initCalcultor()
+
         if simpleCalc.canAddOperator {
-            textView.text.append(" - ")
-            expression.append(" - ")
+            simpleCalc.elements.append(" - ")
         } else {
                 let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
                 alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
@@ -59,9 +59,9 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedMultiplicationButton(_ sender: UIButton) {
-        initCalcultor()
+
         if simpleCalc.canAddOperator {
-            textView.text.append(" * ")
+            simpleCalc.elements.append(" * ")
             } else {
                 let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
                 alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
@@ -70,9 +70,9 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedDivisionButton(_ sender: UIButton) {
-        initCalcultor()
+
         if simpleCalc.canAddOperator {
-            textView.text.append(" / ")
+            simpleCalc.elements.append(" / ")
             } else {
                 let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
                 alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
