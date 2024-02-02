@@ -98,8 +98,8 @@ class ViewController: UIViewController {
             return self.present(alertVC, animated: true, completion: nil)
                 }*/
 
-                let result = simpleCalc.calculateResult()
-                textView.text.append(" = \(result)")
+                //let result = simpleCalc.calculateResult()
+                //textView.text.append(" = \(result)")
     }
 
     func initCalcultor() {

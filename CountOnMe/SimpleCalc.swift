@@ -44,99 +44,102 @@ public class SimpleCalc {
     var divisionByZero: Bool {
         elements.contains("/") && elements.last == "0"
     }
+    
+    func calculateResult(elements: [String]) -> String {
+            var mutableElements = elements
 
-    /*func calculateResult() -> String {
-     var operationsToReduce = elements
-     
-     while operationsToReduce.count > 1 {
-     let left = Int(operationsToReduce[0])!
-     let operand = operationsToReduce[1]
-     let right = Int(operationsToReduce[2])!
-     
-     let result: Int
-     switch operand {
-     case "+": result = left + right
-     case "-": result = left - right
-     case "*": result = left * right
-     case "/": result = left / right
-     default: fatalError("Unknown operator !")
-     }
-     
-     operationsToReduce = Array(operationsToReduce.dropFirst(3))
-     operationsToReduce.insert("\(result)", at: 0)
-     }
-     
-     return operationsToReduce.first ?? ""
-     }*/
-
-    func addition(elements: [String]) -> Int {
-        var result = 0
-        if elements.count > 1 {
-            let firstElement = Int(elements[0])!
-            let nextElement = Int(elements[2])!
-            result = firstElement + nextElement
-        }
-
-        return result
-    }
-
-    func substraction(elements: [String]) -> Int {
-        var result=0
-        if elements.count > 1 && elements.count == 3 {
-            let firstElement = Int(elements[0])!
-            let nextElement = Int(elements[2])!
-            result = firstElement - nextElement
-        } else {
-            fatalError("ERROR!")
-        }
-        return result
-    }
-
-    func multiplication(elements: [String]) -> Int {
-        var result=0
-        if elements.count > 1 && elements.count == 3 {
-            let firstElement = Int(elements[0])!
-            let nextElement = Int(elements[2])!
-            result = firstElement * nextElement
-        } else {
-            fatalError("ERROR!")
-        }
-        return result
-    }
-
-    func division(elements: [String]) -> Int {
-        var result=0
-        if elements.count > 1 {
-            let firstElement = Int(elements[0])!
-            let nextElement = Int(elements[2])!
-            if nextElement > 0 {
-                result = firstElement / nextElement
-            } else {
-                fatalError("ERROR!")
+            // Ensure there are enough elements to perform operations
+            guard expressionHaveEnoughElement else {
+                fatalError("Not enough elements to perform operations!")
             }
 
+            // Check if all operators are the same (either '+' or '-')
+            let allOperatorsSame = Set(mutableElements.filter { $0 == "+" || $0 == "-" }).count == 1
+
+            if allOperatorsSame {
+                calculateSequentially(&mutableElements)
+            } else {
+                multiplyOrDivide(&mutableElements)
+                addOrSubtract(&mutableElements)
+            }
+
+            guard let finalResult = mutableElements.first else {
+                fatalError("Error calculating the final result!")
+            }
+
+            return finalResult
         }
 
-        return result
-    }
+        private func calculateSequentially(_ elements: inout [String]) {
+            while elements.count > 1 {
+                let leftOperand = Int(elements[0])!
+                let operatorSymbol = elements[1]
+                let rightOperand = Int(elements[2])!
 
-    func calculateResult() -> String {
-        var elementsForOperation = elements
+                let result: Int
+                if operatorSymbol == "+" {
+                    result = leftOperand + rightOperand
+                } else {
+                    // Check for subtraction with negative result
+                    result = leftOperand - rightOperand
+                }
 
-        let operand = elementsForOperation[1]
-        let result: Int
-        switch operand {
-        case "+": result = addition(elements: elements)
-        case "-": result = substraction(elements: elements)
-        case "*": result = multiplication(elements: elements)
-        case "/": result = division(elements: elements)
-        default: fatalError("Unknown operator !")
+                // Replace operands and operator with the result
+                elements.removeFirst(3)
+                elements.insert("\(result)", at: 0)
+            }
         }
 
-        elementsForOperation = Array(elementsForOperation.dropFirst(3))
-        elementsForOperation.insert("\(result)", at: 0)
+        private func multiplyOrDivide(_ elements: inout [String]) {
+            while elements.contains("*") || elements.contains("/") {
+                if let index = elements.firstIndex(where: { $0 == "*" || $0 == "/" }) {
+                    let operatorPosition = index
+                    let leftOperandIndex = operatorPosition - 1
+                    let rightOperandIndex = operatorPosition + 1
 
-        return elementsForOperation[0]
-    }
+                    guard leftOperandIndex >= 0 && rightOperandIndex < elements.count else {
+                        fatalError("Invalid operands for multiplication or division!")
+                    }
 
+                    let leftOperand = Int(elements[leftOperandIndex])!
+                    let rightOperand = Int(elements[rightOperandIndex])!
+
+                    let result: Int
+                    if elements[operatorPosition] == "*" {
+                        result = leftOperand * rightOperand
+                    } else {
+                        // Check for division by zero
+                        guard rightOperand != 0 else {
+                            fatalError("Division by zero is not allowed!")
+                        }
+                        result = leftOperand / rightOperand
+                    }
+
+                    // Replace operands and operator with the result
+                    elements.remove(at: rightOperandIndex)
+                    elements.remove(at: operatorPosition)
+                    elements[leftOperandIndex] = "\(result)"
+                }
+            }
+        }
+
+        private func addOrSubtract(_ elements: inout [String]) {
+            while elements.count > 1 {
+                let leftOperand = Int(elements[0])!
+                let operatorSymbol = elements[1]
+                let rightOperand = Int(elements[2])!
+
+                let result: Int
+                if operatorSymbol == "+" {
+                    result = leftOperand + rightOperand
+                } else {
+                    // Check for subtraction with negative result
+                    result = leftOperand - rightOperand
+                }
+
+                // Replace operands and operator with the result
+                elements.removeFirst(3)
+                elements.insert("\(result)", at: 0)
+            }
+        }
 }
