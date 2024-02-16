@@ -77,6 +77,21 @@ class ViewController: UIViewController {
                 self.present(alertVC, animated: true, completion: nil)
             }
     }
+    
+    
+    @IBAction func tappedClearButton(_ sender: Any) {
+        simpleCalc.elements.removeAll()
+            textView.text = ""
+    }
+    
+    @IBAction func tappedPointButton(_ sender: Any) {
+        if !simpleCalc.elements.isEmpty && !simpleCalc.elements.last!.contains(".") {
+                simpleCalc.elements.append(".")
+                textView.text.append(".")
+            }
+    }
+    
+    
 
     @IBAction func tappedEqualButton(_ sender: UIButton) {
         /*guard simpleCalc.expressionIsCorrect else {
