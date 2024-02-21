@@ -112,8 +112,12 @@ class ViewController: UIViewController {
             return self.present(alertVC, animated: true, completion: nil)
                 }*/
 
-        let result = simpleCalc.calculateResult(elements: simpleCalc.elements)
-           textView.text = "\(textView.text!) = \(result)"
+        if let result = simpleCalc.calculateExpression(from: simpleCalc.elements) {
+            let resultString = String(result)
+            textView.text = "\(textView.text ?? "") = \(resultString)"
+        } else {
+            textView.text = "\(textView.text ?? "") = Error" // En cas d'erreur de calcul
+        }
     }
 
     func initCalcultor() {

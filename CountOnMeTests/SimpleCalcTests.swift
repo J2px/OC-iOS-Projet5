@@ -7,6 +7,7 @@
 //
 
 import XCTest
+
 @testable import CountOnMe
 
 class SimpleCalcTests: XCTestCase {
@@ -23,52 +24,64 @@ class SimpleCalcTests: XCTestCase {
         super.tearDown()
     }
 
-    // Test calculateResult method for simple addition
-    func testCalculateResultSimpleAddition() {
+    // Test calculateExpression method for simple addition with decimal numbers
+    func testCalculateExpressionSimpleAdditionDecimal() {
         // Given
-        simpleCalc.elements = ["5", "+", "3"]
+        simpleCalc.elements = ["5.5", "+", "3.3"]
 
         // When
-        let result = simpleCalc.calculateResult(elements: simpleCalc.elements)
+        let result = simpleCalc.calculateExpression(from: simpleCalc.elements)
 
         // Then
-        XCTAssertEqual(result, "8", "Calculate result failed for simple addition")
+        XCTAssertEqual(result!, 8.8, accuracy: 0.001, "Calculate expression failed for simple addition with decimal numbers")
     }
 
-    // Test calculateResult method for addition only
-    func testCalculateResultAdditionOnly() {
+    // Test calculateExpression method for complex expression with decimal numbers
+    func testCalculateExpressionComplexExpressionDecimal() {
+        // Given
+        simpleCalc.elements = ["5.5", "+", "3.3", "*", "2", "/", "2.5", "-", "1"]
+
+        // When
+        let result = simpleCalc.calculateExpression(from: simpleCalc.elements)
+
+        // Then
+        XCTAssertEqual(result!, 7.14, accuracy: 0.001, "Calculate expression failed for complex expression with decimal numbers")
+    }
+
+    // Test calculateExpression method for simple addition only
+    func testCalculateExpressionAdditionOnly() {
         // Given
         simpleCalc.elements = ["5", "+", "3", "+", "2", "+", "1"]
 
         // When
-        let result = simpleCalc.calculateResult(elements: simpleCalc.elements)
+        let result = simpleCalc.calculateExpression(from: simpleCalc.elements)
 
         // Then
-        XCTAssertEqual(result, "11", "Calculate result failed for addition only")
+        XCTAssertEqual(result, 11, "Calculate expression failed for addition only")
     }
 
-    // Test calculateResult method for subtraction only
-    func testCalculateResultSubtractionOnly() {
+    // Test calculateExpression method for subtraction only
+    func testCalculateExpressionSubtractionOnly() {
         // Given
         simpleCalc.elements = ["10", "-", "3", "-", "2", "-", "1"]
 
         // When
-        let result = simpleCalc.calculateResult(elements: simpleCalc.elements)
+        let result = simpleCalc.calculateExpression(from: simpleCalc.elements)
 
         // Then
-        XCTAssertEqual(result, "4", "Calculate result failed for subtraction only")
+        XCTAssertEqual(result, 4, "Calculate expression failed for subtraction only")
     }
 
-    // Test calculateResult method for complex expression
-    func testCalculateResultComplexExpression() {
+    // Test calculateExpression method for complex expression
+    func testCalculateExpressionComplexExpression() {
         // Given
         simpleCalc.elements = ["5", "+", "3", "*", "2", "/", "2", "-", "1"]
 
         // When
-        let result = simpleCalc.calculateResult(elements: simpleCalc.elements)
+        let result = simpleCalc.calculateExpression(from: simpleCalc.elements)
 
         // Then
-        XCTAssertEqual(result, "7", "Calculate result failed for complex expression")
+        XCTAssertEqual(result, 7.00, "Calculate expression failed for complex expression")
     }
 
     // Test case for expressionIsCorrect property with a correct expression

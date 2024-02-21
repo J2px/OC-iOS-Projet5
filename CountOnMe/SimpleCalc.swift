@@ -9,7 +9,11 @@
 import Foundation
 
 public class SimpleCalc {
-
+    
+    //var elements:String!
+    
+    
+    
     var elements: [String] = [] {
         didSet {
             elements = elements.filter {
@@ -17,129 +21,136 @@ public class SimpleCalc {
             }
         }
     }
-
-    // Error check computed variables
+    
     var expressionIsCorrect: Bool {
         return elements.last != "+" &&
         elements.last != "-" &&
         elements.last != "*" &&
         elements.last != "/"
     }
-
+    
     var expressionHaveEnoughElement: Bool {
-        elements.count >= 3
+        return elements.count >= 3
     }
-
+    
     var canAddOperator: Bool {
         return elements.last != "+"
         && elements.last != "-"
         && elements.last != "*"
         && elements.last != "/"
     }
-
+    
     var expressionHaveResult: Bool {
-        elements.contains("=")
-    }
-
-    var divisionByZero: Bool {
-        elements.contains("/") && elements.last == "0"
+        return elements.contains("=")
     }
     
-    func calculateResult(elements: [String]) -> String {
-            var mutableElements = elements
+    var divisionByZero: Bool {
+        return elements.contains("/") && elements.last == "0"
+    }
+    
+    
+    /*func calculateExpression(from elements: String) -> Double? {
+        //let elementsToConvert = elements.joined(separator: " ")
+        let expression = NSExpression(format: elements)
 
-            // Ensure there are enough elements to perform operations
-            guard expressionHaveEnoughElement else {
-                fatalError("Not enough elements to perform operations!")
-            }
-
-            // Check if all operators are the same (either '+' or '-')
-            let allOperatorsSame = Set(mutableElements.filter { $0 == "+" || $0 == "-" }).count == 1
-
-            if allOperatorsSame {
-                calculateSequentially(&mutableElements)
+        do {
+            if let result = try expression.expressionValue(with: nil, context: nil) as? Double {
+                print(result)
+                return result
             } else {
-                multiplyOrDivide(&mutableElements)
-                addOrSubtract(&mutableElements)
+                print("Expression result is not a Double")
+                return nil
             }
-
-            guard let finalResult = mutableElements.first else {
-                fatalError("Error calculating the final result!")
+        } catch {
+            print("Error: \(error)")
+            return nil
+        }
+    }*/
+    
+    
+ 
+    private func extractNumbers(from elements: [String]) -> [Double] {
+        var result: [Double] = []
+        
+        for element in elements {
+            if let number = Double(element) {
+                result.append(number)
             }
+        }
+        
+        return result
+    }
+    
+    
+    func calculateExpression(from elements: [String]) -> Double? {
+        var numbers = extractNumbers(from: elements)
+        var operators: [String] = []
 
-            return finalResult
+        // Extract operators
+        for element in elements {
+            if ["+", "-", "*", "/"].contains(element) {
+                operators.append(element)
+            }
         }
 
-        private func calculateSequentially(_ elements: inout [String]) {
-            while elements.count > 1 {
-                let leftOperand = Int(elements[0])!
-                let operatorSymbol = elements[1]
-                let rightOperand = Int(elements[2])!
-
-                let result: Int
-                if operatorSymbol == "+" {
-                    result = leftOperand + rightOperand
+        // First, handle multiplication and division
+        var index = 0
+        while index < operators.count {
+            let op = operators[index]
+            if op == "*" || op == "/" {
+                // Ensure we have enough operands
+                if index < numbers.count - 1 {
+                    let operand1 = numbers[index]
+                    let operand2 = numbers[index + 1]
+                    let result = performOperation(operator: op, operand1: operand1, operand2: operand2)
+                    numbers[index] = result
+                    numbers.remove(at: index + 1) // Remove the next number as it has been used in the operation
+                    operators.remove(at: index)
                 } else {
-                    // Check for subtraction with negative result
-                    result = leftOperand - rightOperand
+                    return nil
                 }
-
-                // Replace operands and operator with the result
-                elements.removeFirst(3)
-                elements.insert("\(result)", at: 0)
+            } else {
+                index += 1
             }
         }
 
-        private func multiplyOrDivide(_ elements: inout [String]) {
-            while elements.contains("*") || elements.contains("/") {
-                if let index = elements.firstIndex(where: { $0 == "*" || $0 == "/" }) {
-                    let operatorPosition = index
-                    let leftOperandIndex = operatorPosition - 1
-                    let rightOperandIndex = operatorPosition + 1
-
-                    guard leftOperandIndex >= 0 && rightOperandIndex < elements.count else {
-                        fatalError("Invalid operands for multiplication or division!")
-                    }
-
-                    let leftOperand = Int(elements[leftOperandIndex])!
-                    let rightOperand = Int(elements[rightOperandIndex])!
-
-                    let result: Int
-                    if elements[operatorPosition] == "*" {
-                        result = leftOperand * rightOperand
-                    } else {
-                        // Check for division by zero
-                        guard rightOperand != 0 else {
-                            fatalError("Division by zero is not allowed!")
-                        }
-                        result = leftOperand / rightOperand
-                    }
-
-                    // Replace operands and operator with the result
-                    elements.remove(at: rightOperandIndex)
-                    elements.remove(at: operatorPosition)
-                    elements[leftOperandIndex] = "\(result)"
-                }
+        // Then, handle addition and subtraction
+        var result: Double? = numbers.first
+        index = 0
+        while index < operators.count {
+            let op = operators[index]
+            // Ensure we have enough operands
+            if index < numbers.count - 1 {
+                let operand = numbers[index + 1]
+                result = performOperation(operator: op, operand1: result ?? 0, operand2: operand)
+                index += 1
+            } else {
+                return nil
             }
         }
 
-        private func addOrSubtract(_ elements: inout [String]) {
-            while elements.count > 1 {
-                let leftOperand = Int(elements[0])!
-                let operatorSymbol = elements[1]
-                let rightOperand = Int(elements[2])!
+        return result
+    }
 
-                let result: Int
-                if operatorSymbol == "+" {
-                    result = leftOperand + rightOperand
-                } else {
-                    // Check for subtraction with negative result
-                    result = leftOperand - rightOperand
-                }
 
-                // Replace operands and operator with the result
-                elements.removeFirst(3)
-                elements.insert("\(result)", at: 0)
+    func performOperation(operator op: String, operand1: Double, operand2: Double) -> Double {
+        switch op {
+        case "+":
+            return operand1 + operand2
+        case "-":
+            return operand1 - operand2
+        case "*":
+            return operand1 * operand2
+        case "/":
+            if operand2 != 0 {
+                return operand1 / operand2
+            } else {
+                return Double.nan
             }
+        default:
+            return Double.nan
         }
+    }
+  
+      
 }
