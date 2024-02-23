@@ -10,10 +10,6 @@ import Foundation
 
 public class SimpleCalc {
     
-    //var elements:String!
-    
-    
-    
     var elements: [String] = [] {
         didSet {
             elements = elements.filter {
@@ -24,9 +20,9 @@ public class SimpleCalc {
     
     var expressionIsCorrect: Bool {
         return elements.last != "+" &&
-        elements.last != "-" &&
-        elements.last != "*" &&
-        elements.last != "/"
+            elements.last != "-" &&
+            elements.last != "*" &&
+            elements.last != "/"
     }
     
     var expressionHaveEnoughElement: Bool {
@@ -35,9 +31,9 @@ public class SimpleCalc {
     
     var canAddOperator: Bool {
         return elements.last != "+"
-        && elements.last != "-"
-        && elements.last != "*"
-        && elements.last != "/"
+            && elements.last != "-"
+            && elements.last != "*"
+            && elements.last != "/"
     }
     
     var expressionHaveResult: Bool {
@@ -48,109 +44,64 @@ public class SimpleCalc {
         return elements.contains("/") && elements.last == "0"
     }
     
-    
-    /*func calculateExpression(from elements: String) -> Double? {
-        //let elementsToConvert = elements.joined(separator: " ")
-        let expression = NSExpression(format: elements)
-
-        do {
-            if let result = try expression.expressionValue(with: nil, context: nil) as? Double {
-                print(result)
-                return result
-            } else {
-                print("Expression result is not a Double")
-                return nil
-            }
-        } catch {
-            print("Error: \(error)")
-            return nil
-        }
-    }*/
-    
-    
- 
-    private func extractNumbers(from elements: [String]) -> [Double] {
-        var result: [Double] = []
+    private func extractNumbers(from array: [String]) -> [String] {
+        var result = [String]()
+        var currentNumber = ""
         
-        for element in elements {
-            if let number = Double(element) {
-                result.append(number)
+        for element in array {
+            if let _ = Double(element) { // Si l'élément est un nombre ou un nombre décimal
+                currentNumber += element
+            } else {
+                // Vérifie si l'élément est un point décimal et que le nombre en cours n'est pas vide
+                if element == "." && !currentNumber.isEmpty {
+                    currentNumber += element // Ajoute le point décimal au nombre en cours
+                } else {
+                    if !currentNumber.isEmpty {
+                        result.append(currentNumber)
+                        currentNumber = ""
+                    }
+                    result.append(element)
+                }
             }
+        }
+        
+        if !currentNumber.isEmpty {
+            result.append(currentNumber)
         }
         
         return result
+        
     }
     
     
     func calculateExpression(from elements: [String]) -> Double? {
-        var numbers = extractNumbers(from: elements)
-        var operators: [String] = []
+        let numbers = extractNumbers(from: elements)
+        var result: Double = 0
+        var currentOperator = "+"
 
-        // Extract operators
-        for element in elements {
-            if ["+", "-", "*", "/"].contains(element) {
-                operators.append(element)
-            }
-        }
-
-        // First, handle multiplication and division
-        var index = 0
-        while index < operators.count {
-            let op = operators[index]
-            if op == "*" || op == "/" {
-                // Ensure we have enough operands
-                if index < numbers.count - 1 {
-                    let operand1 = numbers[index]
-                    let operand2 = numbers[index + 1]
-                    let result = performOperation(operator: op, operand1: operand1, operand2: operand2)
-                    numbers[index] = result
-                    numbers.remove(at: index + 1) // Remove the next number as it has been used in the operation
-                    operators.remove(at: index)
-                } else {
-                    return nil
+        for element in numbers {
+            if let number = Double(element) {
+                switch currentOperator {
+                case "+":
+                    result += number
+                case "-":
+                    result -= number
+                case "*":
+                    result *= number
+                case "/":
+                    if number != 0 {
+                        result /= number
+                    } else {
+                        return nil
+                    }
+                default:
+                    break
                 }
             } else {
-                index += 1
-            }
-        }
-
-        // Then, handle addition and subtraction
-        var result: Double? = numbers.first
-        index = 0
-        while index < operators.count {
-            let op = operators[index]
-            // Ensure we have enough operands
-            if index < numbers.count - 1 {
-                let operand = numbers[index + 1]
-                result = performOperation(operator: op, operand1: result ?? 0, operand2: operand)
-                index += 1
-            } else {
-                return nil
+                currentOperator = element
             }
         }
 
         return result
     }
-
-
-    func performOperation(operator op: String, operand1: Double, operand2: Double) -> Double {
-        switch op {
-        case "+":
-            return operand1 + operand2
-        case "-":
-            return operand1 - operand2
-        case "*":
-            return operand1 * operand2
-        case "/":
-            if operand2 != 0 {
-                return operand1 / operand2
-            } else {
-                return Double.nan
-            }
-        default:
-            return Double.nan
-        }
-    }
-  
-      
 }
